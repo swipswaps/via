@@ -10,7 +10,8 @@ if (window != window.top) {
 }
 
 var embed_script = document.createElement("script");
-embed_script.src = "https://hypothes.is/embed.js";
+//embed_script.src = "http://localhost:5000/embed.js";
+embed_script.src = 'https://hypothes.is/embed.js';
 document.head.appendChild(embed_script);
 window.hypothesisConfig = function() {
     return {showHighlights: true};

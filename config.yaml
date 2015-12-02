@@ -9,7 +9,7 @@ collections:
             'application/x-pdf': *pdf_viewer
 
         #frame_insert_html: ./templates/frame_insert.html
-        #head_insert_html: ./templates/head_insert.html
+        head_insert_html: ./templates/head_insert.html
         redir_to_exact: false
 
         #cookie_scope: host
@@ -19,6 +19,7 @@ collections:
             client:
                 no_rewrite_prefixes:
                     - 'https://hypothes.is/'
+                    - 'http://localhost:5000/'
                     - '/assets/'
 
                 #skip_createElement: true

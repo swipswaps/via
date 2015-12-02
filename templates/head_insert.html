@@ -1,0 +1,58 @@
+<!-- This is the header injected into each page served by the Via
+     client in order to inject the sidebar.
+!-->
+
+<!-- set the canonical URL so that any annotations created
+     are associated with the original page, not the Via URL
+!-->
+<link rel="canonical" href="{{ cdx.url }}"/>
+
+<!-- install client-side JS to handle overrides !-->
+{% if rule.js_rewrite_location != 'urls' and include_wombat %}
+<script>
+/*
+  This sets up configuration of the 'wombat.js' script which
+  is a part of pywb that aims to enable record/replay of
+  web sessions via monkey patches many DOM objects in order to
+  rewrite URLs of resources that are loaded dynamically
+  from their original form to proxied URLs. eg.
+  rewriting the href/src attributes of dynamically added
+  DOM elements from $URL to $PROXY_URL/$URL.
+
+  See https://gist.github.com/robertknight/2145c99ed8209ebb1b81
+  for a more detailed description of what Wombat does.
+*/
+  {% set urlsplit = cdx.url | urlsplit %}
+  wbinfo = {}
+  wbinfo.url = "{{ cdx.url }}";
+  wbinfo.timestamp = "{{ cdx.timestamp }}";
+  wbinfo.request_ts = "{{ wbrequest.wb_url.timestamp }}";
+  wbinfo.prefix = "{{ wbrequest.wb_prefix }}";
+  wbinfo.mod = "{{ wbrequest.wb_url.mod }}";
+  wbinfo.top_url = "{{ top_url }}";
+  wbinfo.is_framed = {{ "true" if wbrequest.options.is_framed else "false" }};
+  wbinfo.is_live = {{ "true" if cdx.is_live else "false" }};
+  wbinfo.coll = "{{ wbrequest.coll }}";
+  wbinfo.proxy_magic = "{{ wbrequest.env.pywb_proxy_magic }}";
+  wbinfo.static_prefix = "{{ wbrequest.host_prefix }}/{{ static_path }}";
+  wbinfo.wombat_ts = "{{ cdx['timestamp'] if include_ts else ''}}";
+  wbinfo.wombat_scheme = "{{ urlsplit.scheme }}";
+  wbinfo.wombat_host = "{{ urlsplit.netloc }}";
+  wbinfo.wombat_sec = "{{ cdx.timestamp | format_ts('%s') }}";
+  wbinfo.wombat_opts = {{ wbrequest.rewrite_opts.client | tojson if wbrequest.rewrite_opts.client else '{}' }};
+</script>
+{% endif %}
+
+<script src="/static/via-client.bundle.js"></script>
+
+<!-- Inject the Hypothesis sidebar -->
+<script>
+(function () {
+  if (window != window.top) {
+	  return;
+  }
+  var embed_script = document.createElement("script");
+  embed_script.src = 'https://hypothes.is/embed.js';
+  document.head.appendChild(embed_script);
+})();
+</script>
