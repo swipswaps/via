@@ -13,14 +13,48 @@ if (window.location.pathname.indexOf('/if_/') === 0) {
   return;
 }
 
-var embed_script = document.createElement("script");
-embed_script.src = "{{ h_embed_url }}";
-document.head.appendChild(embed_script);
-window.hypothesisConfig = function() {
-    return {
-      showHighlights: true,
-      appType: 'via'
-    };
+/**
+ * Return `true` if Hypothesis is already embedded on the page.
+ *
+ * This is a "best effort" test and may return false if the page loads
+ * a custom version of the client or loads the client dynamically.
+ */
+function isHypothesisEmbedded() {
+  // Note that these tests do not require the client's boot script to have run.
+  // This is important since we have no guarantee of when or how long that will
+  // take.
+  var selectors = [
+    // Client boot script.
+    'script[src="{{ h_embed_url }}"]',
+
+    // Host-page provided button that triggers opening of the sidebar.
+    '*[data-hypothesis-trigger]',
+  ];
+
+  var foundMatch = selectors.some(function (s) {
+    return document.querySelector(s) !== null;
+  });
+
+  return foundMatch;
 }
+
+window.addEventListener('DOMContentLoaded', function () {
+  if (isHypothesisEmbedded()) {
+    // This page already has the client on it. Visting the original URL will
+    // provide a better experience and avoid limitations of the proxy.
+    window.location.href = "{{ cdx.url }}";
+  }
+
+  var embed_script = document.createElement("script");
+  embed_script.src = "{{ h_embed_url }}";
+  document.head.appendChild(embed_script);
+  window.hypothesisConfig = function() {
+      return {
+        showHighlights: true,
+        appType: 'via'
+      };
+  }
+});
+
 })();
 </script>
