@@ -133,29 +133,8 @@
     </script>
   </head>
   <body>
-    <header>
-      <h1>Content not available</h1>
-    </header>
-    <article>
-      <p>
-        Unfortunately, the publisher of this page has requested that we disallow
-        access to it through this Hypothesis service. That means we can't show
-        you the page you were looking for right away…
-      </p>
-      <p>
-        <strong>To view the annotations on this page:</strong>
-      </p>
-      <ol>
-        <li>
-          Follow the <a href="https://hypothes.is/" target="_blank">instructions
-          on our homepage</a> to install our browser extension.
-        </li>
-        <li>
-          Visit the page directly<span id="page-url"></span> and click on the
-          extension icon to see the annotations.
-        </li>
-      </ol>
-    </article>
+    {% block content %}
+    {% endblock %}
     <footer>
       <a href="https://hypothes.is/">
         <img
@@ -165,37 +144,5 @@
         >
       </a>
     </footer>
-    <script>
-        (function () {
-            function _t(text) {
-                return document.createTextNode(text);
-            }
-
-            // If we're running in the right place add a link to the original
-            // page to the #page-url element.
-            if (window.location.hostname !== 'via.hypothes.is') {
-                return;
-            }
-
-            var expand = document.getElementById('page-url');
-            if (!expand) {
-                return;
-            }
-
-            var url = window.location.pathname.slice(1) + window.location.search;
-            var text = url;
-
-            if (text.length > 50) {
-                text = text.slice(0, 50) + '…';
-            }
-
-            var anchor = document.createElement('a');
-            anchor.href = url;
-            anchor.appendChild(_t(text));
-
-            expand.appendChild(_t(' at '));
-            expand.appendChild(anchor);
-        }());
-    </script>
   </body>
 </html>

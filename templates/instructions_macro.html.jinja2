@@ -1,0 +1,18 @@
+{% macro view_annotations(url_to_annotate) -%}
+  <p>
+    <strong>To view the annotations on this page:</strong>
+  </p>
+  <ol>
+    <li>
+      Follow the <a href="https://web.hypothes.is/" target="_blank">instructions
+      on our homepage</a> to install our browser extension.
+    </li>
+    <li>
+      Visit the page directly at
+      <a href="{{ url_to_annotate | e }}" target="_blank">
+        {{ url_to_annotate }}
+      </a>
+      and click on the extension icon to see the annotations.
+    </li>
+  </ol>
+{%- endmacro %}
