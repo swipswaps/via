@@ -10,8 +10,9 @@ clean:
 	find . -type d -name "__pycache__" -delete
 
 .PHONY: deps
-deps:
+deps: requirements.txt requirements-dev.txt
 	pip install -r requirements.txt
+	pip install -r requirements-dev.txt
 	pip install pytest
 
 .PHONY: test
@@ -21,3 +22,7 @@ test:
 .PHONY: serve
 serve:
 	uwsgi uwsgi.ini
+
+.PHONY: lint
+lint:
+	flake8 via tests
