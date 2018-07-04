@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
 
-import json
 import os
-from jinja2 import Environment, FileSystemLoader, Template
+
+from jinja2 import Environment, FileSystemLoader
 from werkzeug import wsgi
 from werkzeug.wrappers import BaseResponse as Response
 
@@ -24,7 +24,7 @@ class Blocker(object):
     def __init__(self, application, prefixes=None, template=None):
         self._application = application
         self._jinja_env = Environment(loader=FileSystemLoader(TEMPLATES_DIR),
-                                  trim_blocks=True)
+                                      trim_blocks=True)
         self._prefixes = prefixes or PREFIXES
         self._template = template
 
