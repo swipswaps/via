@@ -5,7 +5,7 @@ python:
   - "2.7"
 cache: pip
 install:
-  - make deps
+  - make .pydeps
 script:
   - make test
   - make lint
