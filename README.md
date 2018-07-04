@@ -45,7 +45,6 @@ docker stop via
 You can also run Via locally without using Docker:
 
 ```py
-make deps
 make serve
 ```
 

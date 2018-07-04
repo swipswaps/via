@@ -9,15 +9,20 @@ clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
 
-.PHONY: deps
-deps:
+.pydeps: requirements.txt requirements-dev.txt
 	pip install -r requirements.txt
+	pip install -r requirements-dev.txt
 	pip install pytest
+	touch $@
 
 .PHONY: test
-test:
+test: .pydeps
 	python -m pytest tests
 
 .PHONY: serve
-serve:
+serve: .pydeps
 	uwsgi uwsgi.ini
+
+.PHONY: lint
+lint: .pydeps
+	flake8 via tests

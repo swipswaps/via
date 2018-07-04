@@ -4,5 +4,8 @@ language:
 python:
   - "2.7"
 cache: pip
+install:
+  - make .pydeps
 script:
   - make test
+  - make lint

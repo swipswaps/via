@@ -5,7 +5,6 @@ from werkzeug.wrappers import BaseResponse as Response
 from werkzeug import wsgi
 
 from via.blocker import Blocker
-import StringIO
 
 block_examples = pytest.mark.parametrize('path,blocked, status_code', [
     ('/', False, 200),
@@ -59,6 +58,7 @@ class TestBlocker(object):
     @pytest.fixture
     def client(self, app):
         return Client(app, Response)
+
 
 @wsgi.responder
 def upstream_app(environ, start_response):
