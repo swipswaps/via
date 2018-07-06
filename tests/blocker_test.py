@@ -8,23 +8,26 @@ from via.blocker import Blocker
 
 block_examples = pytest.mark.parametrize('path,blocked, status_code', [
     ('/', False, 200),
-    ('/giraf', False, 200),
-    ('/giraffe', True, 400),
-    ('/giraffe/', True, 400),
-    ('/giraffe/neck', True, 400),
-    ('/birds', False, 200),
-    ('/birds/goose', False, 200),
-    ('/birds/duck', True, 451),
-    ('/birds/duck/bill', True, 451),
+    ('/http://giraf.com', False, 200),
+    ('/http://giraffe.com', True, 400),
+    ('/http://giraffe.com/', True, 400),
+    ('/http://giraffe.com/neck', True, 400),
+    ('/http://bird.com', False, 200),
+    ('/http://birds.com', True, 451),
+    ('/https://birds.com', True, 451),
+    ('/birds.com', True, 451),
+    ('/giraffe.com', True, 400),
+    ('/bird.com', False, 200),
+    ('/giraff.com', False, 200),
 ])
 
 
 class TestBlocker(object):
     def test_serves_template_file(self, client):
         blocker = Blocker(upstream_app,
-                          prefixes=[{"prefix": "/baby", "template": "disallow_access.html.jinja2", "status": 451}])
+                          domains=[{"domain": "baby.com", "template": "disallow_access.html.jinja2", "status": 451}])
         client = Client(blocker, Response)
-        resp = client.get('/baby')
+        resp = client.get('/baby.com')
         assert 'Content not available' in resp.data
 
     @block_examples
@@ -51,8 +54,8 @@ class TestBlocker(object):
     @pytest.fixture
     def app(self):
         return Blocker(upstream_app,
-                       prefixes=[{"prefix": "/giraffe", "status": 400},
-                                 {"prefix": "/birds/duck", "status": 451}],
+                       domains=[{"domain": "giraffe.com", "status": 400},
+                                {"domain": "birds.com", "status": 451}],
                        template="your eyes are protected")
 
     @pytest.fixture
