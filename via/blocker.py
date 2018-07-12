@@ -22,12 +22,11 @@ class Blocker(object):
     request path matches a list of predefined domains.
     """
 
-    def __init__(self, application, domains=None, template=None):
+    def __init__(self, application, domains=None):
         self._application = application
         self._jinja_env = Environment(loader=FileSystemLoader(TEMPLATES_DIR),
                                       trim_blocks=True)
         self._domains = domains or DOMAINS
-        self._template = template
 
     def __call__(self, environ, start_response):
         url_to_annotate = wsgi.get_path_info(environ)[1:]
@@ -41,9 +40,7 @@ class Blocker(object):
 
         for _d in self._domains:
             if hostname_to_annotate and hostname_to_annotate == _d['domain']:
-                template = self._template
-                if _d.get('template'):
-                    template = self._jinja_env.get_template(_d.get('template')).render(url_to_annotate=url_to_annotate)
+                template = self._jinja_env.get_template(_d['template']).render(url_to_annotate=url_to_annotate)
                 resp = Response(template,
                                 status=_d['status'], mimetype='text/html')
                 return resp(environ, start_response)
