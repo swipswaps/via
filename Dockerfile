@@ -1,10 +1,11 @@
-FROM python:2.7-alpine
+FROM python:2.7-alpine3.7
 MAINTAINER Hypothes.is Project and Ilya Kreymer
 
 # Install runtime deps.
 RUN apk add --update \
     git \
     collectd \
+    collectd-disk \
     libffi \
     openssl \
     supervisor \
