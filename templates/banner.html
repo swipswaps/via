@@ -19,7 +19,13 @@ document.head.appendChild(embed_script);
 window.hypothesisConfig = function() {
     return {
       showHighlights: true,
-      appType: 'via'
+      appType: 'via'{% if lms_mode %},
+      openSidebar: true,
+      services: [{
+        apiUrl: 'http://localhost:5000/api/',
+        authority: 'lms.hypothes.is',
+        grantToken: 'postMessage'
+      }]{% endif %}
     };
 }
 })();

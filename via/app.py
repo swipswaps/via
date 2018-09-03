@@ -60,6 +60,9 @@ def app(environ, start_response):
 
     template_params = environ.get('pywb.template_params', {})
     template_params['h_embed_url'] = embed_url
+
+    template_params['lms_mode'] = os.environ.get('LMS_MODE', False)
+
     environ['pywb.template_params'] = template_params
 
     return pywb.apps.wayback.application(environ, start_response)
