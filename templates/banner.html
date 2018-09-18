@@ -19,7 +19,15 @@ document.head.appendChild(embed_script);
 window.hypothesisConfig = function() {
     return {
       showHighlights: true,
-      appType: 'via'
+      appType: 'via',
+
+      {% if h_request_config %}
+      requestConfigFromFrame: '{{ h_request_config }}',
+      {% endif %}
+
+      {% if h_open_sidebar %}
+      openSidebar: true,
+      {% endif %}
     };
 }
 })();
