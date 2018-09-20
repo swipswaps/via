@@ -9,6 +9,7 @@ from werkzeug.wrappers import BaseResponse as Response
 from werkzeug import wsgi
 
 from via.config_extractor import ConfigExtractor, pop_query_params_with_prefix
+from via.config_extractor import rewrite_location_header
 
 
 class TestPopQueryParamsWithPrefix(object):
@@ -39,6 +40,47 @@ class TestPopQueryParamsWithPrefix(object):
         return create
 
 
+class TestRewriteLocationHeader(object):
+    def test_it_ignores_non_location_headers(self):
+        params = {'via.foo': 'bar', 'via.baz': 'meep'}
+
+        header, value = rewrite_location_header('Not-Location', 'https://example.com', params)
+
+        assert header == 'Not-Location'
+        assert value == 'https://example.com'
+
+    @pytest.mark.parametrize('header_name', [
+        ('location'),
+        ('Location'),
+        ('LOCATION'),
+    ])
+    def test_it_adds_params_to_location_header(self, header_name):
+        params = {'via.foo': 'bar', 'via.baz': 'meep'}
+
+        header, value = rewrite_location_header(header_name, 'https://example.com', params)
+
+        assert header == header_name
+        assert value == 'https://example.com?via.foo={}&via.baz={}'.format(
+            params['via.foo'], params['via.baz']
+        )
+
+    def test_it_retains_rest_of_url(self):
+        url = 'https://localhost:5000/a/path?some_query=#some_fragment'
+
+        header, value = rewrite_location_header('Location', url, {})
+
+        assert header == 'Location'
+        assert value == url
+
+    def test_it_returns_original_header_if_url_cannot_be_parsed(self):
+        url = 'http://['
+
+        header, value = rewrite_location_header('Location', url, {'via.foo': 'bar'})
+
+        assert header == 'Location'
+        assert value == url
+
+
 class TestConfigExtractor(object):
     def test_it_sets_template_params_from_matching_query_params(self, client_get):
         resp = client_get('/example.com?q=foobar&'
@@ -55,6 +97,20 @@ class TestConfigExtractor(object):
         upstream_environ = json.loads(resp.data)
         assert upstream_environ['QUERY_STRING'] == 'q=foobar'
         assert upstream_environ['REQUEST_URI'] == '/example.com?q=foobar'
+
+    def test_it_propagates_matching_query_params_to_redirect_location(self, client_get):
+        def upstream_app(environ, start_response):
+            start_response('302 Found', [('Location', 'https://example.com/moved')])
+            return []
+
+        app = ConfigExtractor(upstream_app)
+        client = Client(app, Response)
+        request_url = '/example.com/old-path?q=foobar&via.open_sidebar=1'
+        environ = {'REQUEST_URI': request_url}
+
+        resp = client.get(request_url, environ_overrides=environ)
+
+        assert resp.headers.get('Location') == 'https://example.com/moved?via.open_sidebar=1'
 
     @pytest.fixture
     def app(self):
