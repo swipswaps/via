@@ -103,7 +103,7 @@ class ConfigExtractor(object):
         # This ensures that client configuration is preserved if the user requests
         # a URL which immediately redirects.
         def start_response_wrapper(status, headers, exc_info=None):
-            code_str, _ = status.split(' ')
+            code_str, _ = status.split(' ', 1)
             code = int(code_str)
 
             if code >= 300 and code < 400:

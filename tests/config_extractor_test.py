@@ -98,9 +98,15 @@ class TestConfigExtractor(object):
         assert upstream_environ['QUERY_STRING'] == 'q=foobar'
         assert upstream_environ['REQUEST_URI'] == '/example.com?q=foobar'
 
-    def test_it_propagates_matching_query_params_to_redirect_location(self, client_get):
+    @pytest.mark.parametrize('upstream_status,upstream_location', [
+        ('302 Found', 'https://example.com/moved'),
+        ('301 Moved Permanently', 'https://example.com/moved'),
+    ])
+    def test_it_propagates_matching_query_params_to_redirect_location(
+        self, client_get, upstream_status, upstream_location
+    ):
         def upstream_app(environ, start_response):
-            start_response('302 Found', [('Location', 'https://example.com/moved')])
+            start_response(upstream_status, [('Location', upstream_location)])
             return []
 
         app = ConfigExtractor(upstream_app)
