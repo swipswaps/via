@@ -1,15 +1,17 @@
 from __future__ import unicode_literals
 
-import pytest
-
 import json
 
+import pytest
 from werkzeug.test import Client
 from werkzeug.wrappers import BaseResponse as Response
 from werkzeug import wsgi
 
 from via.config_extractor import ConfigExtractor, pop_query_params_with_prefix
 from via.config_extractor import rewrite_location_header
+
+
+DEFAULT_CONTENT_TYPE = ('Content-Type', 'text/html')
 
 
 class TestPopQueryParamsWithPrefix(object):
@@ -109,14 +111,36 @@ class TestConfigExtractor(object):
             start_response(upstream_status, [('Location', upstream_location)])
             return []
 
-        app = ConfigExtractor(upstream_app)
-        client = Client(app, Response)
         request_url = '/example.com/old-path?q=foobar&via.open_sidebar=1'
-        environ = {'REQUEST_URI': request_url}
 
-        resp = client.get(request_url, environ_overrides=environ)
+        resp = client_get(request_url, ConfigExtractor(upstream_app))
 
+        assert resp.status == upstream_status
         assert resp.headers.get('Location') == 'https://example.com/moved?via.open_sidebar=1'
+
+    @pytest.mark.parametrize('upstream_status,upstream_headers', [
+        # nb. A default "Content-Type" header gets inserted if none is supplied
+        # by upstream, so all examples here include one.
+        ('200 OK', [DEFAULT_CONTENT_TYPE]),
+        ('200 OK', [DEFAULT_CONTENT_TYPE, ('Location', 'https://dont_touch_me.com/')]),
+        ('400 Bad Request', [DEFAULT_CONTENT_TYPE]),
+    ])
+    def test_it_returns_response_unmodified_if_upstream_returns_non_3xx_status(
+        self, client_get, upstream_status, upstream_headers
+    ):
+        upstream_body = "Content from upstream"
+
+        def upstream_app(environ, start_response):
+            start_response(upstream_status, upstream_headers)
+            return upstream_body
+
+        request_url = '/example.com/a_path?q=foobar&via.open_sidebar=1'
+
+        resp = client_get(request_url, ConfigExtractor(upstream_app))
+
+        assert resp.data == upstream_body
+        assert resp.status == upstream_status
+        assert resp.headers.items() == upstream_headers
 
     @pytest.fixture
     def app(self):
@@ -124,8 +148,8 @@ class TestConfigExtractor(object):
 
     @pytest.fixture
     def client_get(self, app):
-        def get(url):
-            client = Client(app, Response)
+        def get(url, upstream_app=app):
+            client = Client(upstream_app, Response)
 
             # `Client` does not set "REQUEST_URI" as an actual app would, so
             # set it manually.
