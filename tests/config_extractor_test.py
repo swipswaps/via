@@ -122,7 +122,11 @@ class TestConfigExtractor(object):
         # nb. A default "Content-Type" header gets inserted if none is supplied
         # by upstream, so all examples here include one.
         ('200 OK', [DEFAULT_CONTENT_TYPE]),
-        ('200 OK', [DEFAULT_CONTENT_TYPE, ('Location', 'https://dont_touch_me.com/')]),
+
+        # 201 responses include a "Location" header, but browsers don't redirect
+        # to the created resource.
+        ('201 Created', [DEFAULT_CONTENT_TYPE, ('Location', 'https://dont_touch_me.com/')]),
+
         ('400 Bad Request', [DEFAULT_CONTENT_TYPE]),
     ])
     def test_it_returns_response_unmodified_if_upstream_returns_non_3xx_status(
