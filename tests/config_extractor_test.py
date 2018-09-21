@@ -66,8 +66,9 @@ class TestRewriteLocationHeader(object):
             params['via.foo'], params['via.baz']
         )
 
-    def test_it_retains_rest_of_url(self):
-        url = 'https://localhost:5000/a/path?some_query=#some_fragment'
+    def test_it_preserves_rest_of_url_in_location_header(self):
+        query_string = 'empty_param=&non_empty_param=foo&q=one&q=two'
+        url = 'https://localhost:5000/a/path?{}#some_fragment'.format(query_string)
 
         header, value = rewrite_location_header('Location', url, {})
 
