@@ -1,7 +1,44 @@
 from __future__ import unicode_literals
 
+import logging
 from urllib import urlencode
-from urlparse import parse_qsl
+from urlparse import parse_qsl, urlparse, urlunparse
+
+
+def rewrite_location_header(name, value, params):
+    """
+    Rewrite "Location" header to append params to the URL's query string.
+
+    Returns other headers unmodified.
+
+    :param name: HTTP header name
+    :param value: HTTP header value
+    :param params: dict of params to add to the URL's query string
+    :return: Modified (name, value) pair
+    """
+
+    if name.lower() != 'location':
+        return (name, value)
+
+    try:
+        parsed_url = urlparse(value)
+        parsed_query = parse_qsl(parsed_url.query, keep_blank_values=True)
+
+        for k, v in params.items():
+            parsed_query.append((k, v))
+
+        updated_query = urlencode(parsed_query)
+        updated_url = urlunparse((parsed_url.scheme,
+                                  parsed_url.netloc,
+                                  parsed_url.path,
+                                  parsed_url.params,
+                                  updated_query,
+                                  parsed_url.fragment))
+
+        return (name, updated_url)
+    except Exception:
+        logging.warn('Failed to parse "Location" header: {}'.format(value))
+        return (name, value)
 
 
 def pop_query_params_with_prefix(environ, prefix):
@@ -39,6 +76,11 @@ class ConfigExtractor(object):
 
     These parameters are then used to populate the parameters exposed to
     rendered templates.
+
+    This middleware also rewrites redirect responses from the upstream app to
+    preserve "via."-prefixed parameters from the original request. Note that
+    this only works for server-side redirects. Client-side redirects will still
+    "lose" these parameters.
     """
 
     def __init__(self, application):
@@ -55,4 +97,18 @@ class ConfigExtractor(object):
 
         environ['pywb.template_params'] = template_params
 
-        return self._application(environ, start_response)
+        # A wrapper which intercepts redirects and adds any params from `via_params`
+        # to the query string in the URL in the "Location" header.
+        #
+        # This ensures that client configuration is preserved if the user requests
+        # a URL which immediately redirects.
+        def start_response_wrapper(status, headers, exc_info=None):
+            code_str, _ = status.split(' ', 1)
+            code = int(code_str)
+
+            if code >= 300 and code < 400:
+                headers = [rewrite_location_header(k, v, via_params) for k, v in headers]
+
+            return start_response(status, headers, exc_info)
+
+        return self._application(environ, start_response_wrapper)
