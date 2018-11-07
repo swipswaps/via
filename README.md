@@ -44,8 +44,8 @@ docker stop via
 
 You can also run Via locally without using Docker:
 
-```py
-make serve
+```shellsession
+make dev
 ```
 
 When Via is running, you can access it locally at [localhost:9080](http://localhost:9080).
@@ -56,7 +56,7 @@ Via serves the client from the URL specified via the `H_EMBED_URL` environment v
 
 In addition, you will also need to make sure that the host the client is being served from is listed under the `no_rewrite_prefixes` key in [config.yaml](config.yaml).
 
-```sh
+```shellsession
 export H_EMBED_URL=http://localhost:5000/embed.js
-make serve
+make dev
 ```

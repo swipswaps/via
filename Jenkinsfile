@@ -12,8 +12,8 @@ node {
 
     stage('test') {
         testApp(image: img, runArgs: '-u root') {
-            sh 'HTTP_PROXY= HTTPS_PROXY= pip install pytest'
-            sh 'cd /var/lib/via && python -m pytest tests'
+            sh 'HTTP_PROXY= HTTPS_PROXY= pip install -q tox tox-pip-extensions'
+            sh 'cd /var/lib/via && tox -e py27-tests'
         }
     }
 
