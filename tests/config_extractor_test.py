@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import json
+import urlparse
 
 import pytest
 from werkzeug.test import Client
@@ -60,11 +61,12 @@ class TestRewriteLocationHeader(object):
         params = {'via.foo': 'bar', 'via.baz': 'meep'}
 
         header, value = rewrite_location_header(header_name, 'https://example.com', params)
+        parsed_value = urlparse.urlparse(value)
+        parsed_qs = urlparse.parse_qs(parsed_value.query)
 
         assert header == header_name
-        assert value == 'https://example.com?via.foo={}&via.baz={}'.format(
-            params['via.foo'], params['via.baz']
-        )
+        assert value.startswith('https://example.com?')
+        assert parsed_qs == {'via.foo': ['bar'], 'via.baz': ['meep']}
 
     def test_it_preserves_rest_of_url_in_location_header(self):
         query_string = 'empty_param=&non_empty_param=foo&q=one&q=two'
