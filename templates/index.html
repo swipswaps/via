@@ -5,18 +5,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>via.hypothes.is</title>
   <style>
-    @import url("//d2v52k3cl9vedd.cloudfront.net/basscss/4.1.7/basscss.min.css");
-    body { margin-top: 5%; font-family: "myriad-pro", sans-serif; }
-    h1 { color: #939393; }
+    @import url("//unpkg.com/normalize.css");
+
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+      height: 100vh;
+    }
+
+    .content {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: center;
+      max-height: 70vh;
+    }
+
+    .url-form {
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+      max-width: 400px;
+      width: 95%;
+    }
+
+    /* Input field for URL to annotate. */
+    .url-field {
+      align-self: stretch;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      font-size: 20px;
+      margin-bottom: 20px;
+      margin-top: 20px;
+      min-height: 45px;
+      padding-bottom: 5px;
+      padding-left: 16px;
+      padding-right: 16px;
+      padding-top: 5px;
+    }
+
+    .url-field:focus {
+      border-color: #3f3f3f;
+      outline: 0;
+    }
+
+    /* Button that takes the user to the proxied page. */
+    .annotate-btn {
+      background-color: #3f3f3f;
+      border-radius: 3px;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 700;
+      max-width: 100px;
+      padding-bottom: 10px;
+      padding-left: 15px;
+      padding-right: 15px;
+      padding-top: 10px;
+    }
+
+    .annotate-btn:hover {
+      background-color: #d00032;
+    }
   </style>
 </head>
 <body>
-  <center>
-  <img width="142" height="142" src="https://hypothes.is/assets/images/logo.png" />
-  <form class="h3" onsubmit="url = document.getElementById('search').value; if (url != '') { document.location.href = '/' + url; } return false;">
-    <input id="search" class="block sm-col-4 field-light" name="search" type="text" maxsize="30" placeholder="Paste a link to create or view annotations"/>
-    <button type="submit" class="button-blue">Go!</button>
+  <div class="content">
+  <a href="https://hypothes.is">
+    <img width="100" height="100" src="static/logo.svg" />
+  </a>
+  <form class="url-form" onsubmit="url = document.getElementById('search').value; if (url != '') { document.location.href = '/' + url; } return false;">
+    <input id="search" class="url-field" name="search" type="text" maxsize="30" placeholder="Paste a link to create or view annotations"/>
+    <button type="submit" class="annotate-btn">Go!</button>
   </form>
-  </center>
+  </div>
 </body>
 </html>
