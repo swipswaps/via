@@ -17,7 +17,7 @@ def rewrite_location_header(name, value, params):
     :return: Modified (name, value) pair
     """
 
-    if name.lower() != 'location':
+    if name.lower() != "location":
         return (name, value)
 
     try:
@@ -28,12 +28,16 @@ def rewrite_location_header(name, value, params):
             parsed_query.append((k, v))
 
         updated_query = urlencode(parsed_query)
-        updated_url = urlunparse((parsed_url.scheme,
-                                  parsed_url.netloc,
-                                  parsed_url.path,
-                                  parsed_url.params,
-                                  updated_query,
-                                  parsed_url.fragment))
+        updated_url = urlunparse(
+            (
+                parsed_url.scheme,
+                parsed_url.netloc,
+                parsed_url.path,
+                parsed_url.params,
+                updated_query,
+                parsed_url.fragment,
+            )
+        )
 
         return (name, updated_url)
     except Exception:
@@ -49,7 +53,7 @@ def pop_query_params_with_prefix(environ, prefix):
     :param prefix: Prefix to match
     :return: A dict of query param / value pairs
     """
-    orig_qs = environ['QUERY_STRING']
+    orig_qs = environ["QUERY_STRING"]
     parsed_query_items = parse_qsl(orig_qs, keep_blank_values=True)
     popped_params = {}
     updated_query_items = []
@@ -61,8 +65,8 @@ def pop_query_params_with_prefix(environ, prefix):
             updated_query_items.append((key, value))
 
     updated_qs = urlencode(updated_query_items)
-    environ['QUERY_STRING'] = updated_qs
-    environ['REQUEST_URI'] = environ['REQUEST_URI'][:-len(orig_qs)] + updated_qs
+    environ["QUERY_STRING"] = updated_qs
+    environ["REQUEST_URI"] = environ["REQUEST_URI"][: -len(orig_qs)] + updated_qs
 
     return popped_params
 
@@ -87,15 +91,17 @@ class ConfigExtractor(object):
         self._application = application
 
     def __call__(self, environ, start_response):
-        template_params = environ.get('pywb.template_params', {})
+        template_params = environ.get("pywb.template_params", {})
 
-        via_params = pop_query_params_with_prefix(environ, 'via.')
-        if 'via.request_config_from_frame' in via_params:
-            template_params['h_request_config'] = via_params['via.request_config_from_frame']
-        if 'via.open_sidebar' in via_params:
-            template_params['h_open_sidebar'] = True
+        via_params = pop_query_params_with_prefix(environ, "via.")
+        if "via.request_config_from_frame" in via_params:
+            template_params["h_request_config"] = via_params[
+                "via.request_config_from_frame"
+            ]
+        if "via.open_sidebar" in via_params:
+            template_params["h_open_sidebar"] = True
 
-        environ['pywb.template_params'] = template_params
+        environ["pywb.template_params"] = template_params
 
         # A wrapper which intercepts redirects and adds any params from `via_params`
         # to the query string in the URL in the "Location" header.
@@ -103,11 +109,13 @@ class ConfigExtractor(object):
         # This ensures that client configuration is preserved if the user requests
         # a URL which immediately redirects.
         def start_response_wrapper(status, headers, exc_info=None):
-            code_str, _ = status.split(' ', 1)
+            code_str, _ = status.split(" ", 1)
             code = int(code_str)
 
             if code >= 300 and code < 400:
-                headers = [rewrite_location_header(k, v, via_params) for k, v in headers]
+                headers = [
+                    rewrite_location_header(k, v, via_params) for k, v in headers
+                ]
 
             return start_response(status, headers, exc_info)
 
