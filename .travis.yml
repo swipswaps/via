@@ -4,8 +4,7 @@ language:
 python:
   - "2.7"
 cache: pip
-install:
-  - make .pydeps
+install: pip install tox tox-pip-extensions
 script:
   - make test
   - make lint
