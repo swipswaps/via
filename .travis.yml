@@ -6,5 +6,6 @@ python:
 cache: pip
 install: pip install tox tox-pip-extensions
 script:
-  - make test
+  - make checkformatting
   - make lint
+  - make test
