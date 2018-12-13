@@ -55,3 +55,7 @@ target/
 
 # Other
 .pydeps
+
+# TLS cert and private key.
+.tlscert.pem
+.tlskey.pem
