@@ -6,6 +6,8 @@ help:
 	@echo "make help              Show this help message"
 	@echo "make dev               Run the app in the development server"
 	@echo "make lint              Run the code linter(s) and print any warnings"
+	@echo "make format            Correctly format the code"
+	@echo "make checkformatting   Crash if the code isn't correctly formatted"
 	@echo "make test              Run the unit tests"
 	@echo "make docker            Make the app's Docker image"
 	@echo "make clean             Delete development artefacts (cached files, "
@@ -26,6 +28,14 @@ docker:
 .PHONY: lint
 lint:
 	tox -e py27-lint
+
+.PHONY: format
+format:
+	tox -e py36-format
+
+.PHONY: checkformatting
+checkformatting:
+	tox -e py36-checkformatting
 
 .PHONY: clean
 clean:

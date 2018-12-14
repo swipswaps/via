@@ -1,2 +1,5 @@
 [flake8]
-ignore = E501
+ignore =
+  E501
+  E203  # whitespace before ':', conflicts with Black code formatting.
+  W503  # line break before binary operator, conflicts with Black code formatting.

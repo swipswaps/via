@@ -26,10 +26,11 @@ class UserAgentDecorator(object):
     def __call__(self, environ, start_response):
         new_env = environ.copy()
 
-        if new_env.get('HTTP_USER_AGENT'):
-            new_env['HTTP_USER_AGENT'] = '{} {}'.format(new_env['HTTP_USER_AGENT'],
-                                                        self.token)
+        if new_env.get("HTTP_USER_AGENT"):
+            new_env["HTTP_USER_AGENT"] = "{} {}".format(
+                new_env["HTTP_USER_AGENT"], self.token
+            )
         else:
-            new_env['HTTP_USER_AGENT'] = self.token
+            new_env["HTTP_USER_AGENT"] = self.token
 
         return self.application(new_env, start_response)

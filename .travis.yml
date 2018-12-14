@@ -1,10 +1,18 @@
 sudo: false
-language:
-  - python
-python:
-  - "2.7"
+language: python
 cache: pip
 install: pip install tox tox-pip-extensions
-script:
-  - make test
-  - make lint
+matrix:
+  include:
+    - env: ACTION=checkformatting
+      python: '3.6'
+      script:
+        make checkformatting
+    - env: ACTION=lint
+      python: '2.7'
+      script:
+        make lint
+    - env: ACTION=test
+      python: '2.7'
+      script:
+        make test

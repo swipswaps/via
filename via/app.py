@@ -30,12 +30,12 @@ logging.disable(logging.INFO)
 @wsgi.responder
 def redirect_old_viewer(environ, start_response):
     request = Request(environ)
-    if 'file' not in request.args:
+    if "file" not in request.args:
         return NotFound()
-    uri = request.args['file']
-    if uri.startswith('/id_/'):
-        uri = uri[len('/id_/'):]
-    return redirect('/{0}'.format(uri))
+    uri = request.args["file"]
+    if uri.startswith("/id_/"):
+        uri = uri[len("/id_/") :]
+    return redirect("/{0}".format(uri))
 
 
 # Can be used as a handler at any path to redirect to the root with the matched
@@ -53,16 +53,16 @@ def redirect_strip_matched_path(environ, start_response):
     request = Request(environ)
     path = request.path
     if request.query_string:
-        path += '?' + request.query_string
+        path += "?" + request.query_string
     return redirect(path, code=301)
 
 
 def app(environ, start_response):
-    embed_url = os.environ.get('H_EMBED_URL', 'https://hypothes.is/embed.js')
+    embed_url = os.environ.get("H_EMBED_URL", "https://hypothes.is/embed.js")
 
-    template_params = environ.get('pywb.template_params', {})
-    template_params['h_embed_url'] = embed_url
-    environ['pywb.template_params'] = template_params
+    template_params = environ.get("pywb.template_params", {})
+    template_params["h_embed_url"] = embed_url
+    environ["pywb.template_params"] = template_params
 
     return pywb.apps.wayback.application(environ, start_response)
 
@@ -70,13 +70,16 @@ def app(environ, start_response):
 application = RequestHeaderSanitiser(app)
 application = ResponseHeaderSanitiser(application)
 application = Blocker(application)
-application = UserAgentDecorator(application, 'Hypothesis-Via')
+application = UserAgentDecorator(application, "Hypothesis-Via")
 application = ConfigExtractor(application)
-application = wsgi.DispatcherMiddleware(application, {
-    '/favicon.ico': static.Cling('static/favicon.ico'),
-    '/robots.txt': static.Cling('static/robots.txt'),
-    '/static': static.Cling('static/'),
-    '/static/__pywb': static.Cling(resource_filename('pywb', 'static/')),
-    '/static/__shared/viewer/web/viewer.html': redirect_old_viewer,
-    '/h': redirect_strip_matched_path,
-})
+application = wsgi.DispatcherMiddleware(
+    application,
+    {
+        "/favicon.ico": static.Cling("static/favicon.ico"),
+        "/robots.txt": static.Cling("static/robots.txt"),
+        "/static": static.Cling("static/"),
+        "/static/__pywb": static.Cling(resource_filename("pywb", "static/")),
+        "/static/__shared/viewer/web/viewer.html": redirect_old_viewer,
+        "/h": redirect_strip_matched_path,
+    },
+)
