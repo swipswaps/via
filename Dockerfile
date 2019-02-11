@@ -25,6 +25,7 @@ RUN apk add --update --virtual build-deps \
     libffi-dev \
     linux-headers \
     openssl-dev \
+  && pip install --no-cache-dir -U pip \
   && pip install --no-cache-dir -r requirements.txt \
   && apk del build-deps \
   && rm -rf /var/cache/apk/*
