@@ -15,11 +15,11 @@ help:
 
 .PHONY: dev
 dev:
-	tox -e py27-dev
+	tox -qe py27-dev
 
 .PHONY: test
 test:
-	tox -e py27-tests
+	tox -qe py27-tests
 
 .PHONY: docker
 docker:
@@ -27,15 +27,15 @@ docker:
 
 .PHONY: lint
 lint:
-	tox -e py27-lint
+	tox -qe py27-lint
 
 .PHONY: format
 format:
-	tox -e py36-format
+	tox -qe py36-format
 
 .PHONY: checkformatting
 checkformatting:
-	tox -e py36-checkformatting
+	tox -qe py36-checkformatting
 
 .PHONY: clean
 clean:
