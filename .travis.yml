@@ -1,7 +1,7 @@
 sudo: false
 language: python
 cache: pip
-install: pip install tox tox-pip-extensions
+install: pip install tox>=3.8.0
 matrix:
   include:
     - env: ACTION=checkformatting
