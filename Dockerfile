@@ -1,4 +1,4 @@
-FROM python:2.7-alpine3.7
+FROM alpine:3.9.2
 MAINTAINER Hypothes.is Project and Ilya Kreymer
 
 # Install runtime deps.
@@ -18,6 +18,12 @@ WORKDIR /var/lib/via
 
 ADD requirements.txt .
 
+# Install goreplay
+RUN apk add curl \
+  && curl -o /tmp/gor.tar.gz -L 'https://github.com/buger/goreplay/releases/download/v0.16.1/gor_0.16.1_x64.tar.gz' \
+  && tar -xzf /tmp/gor.tar.gz -C /usr/local/bin \
+  && rm /tmp/gor.tar.gz
+
 # Install build deps, build, and then clean up.
 RUN apk add --update --virtual build-deps \
     build-base \
@@ -25,6 +31,9 @@ RUN apk add --update --virtual build-deps \
     libffi-dev \
     linux-headers \
     openssl-dev \
+    python2 \
+    python2-dev \
+    py2-pip \
   && pip install --no-cache-dir -U pip \
   && pip install --no-cache-dir -r requirements.txt \
   && apk del build-deps \
@@ -43,11 +52,6 @@ RUN mkdir /var/spool/squid \
 # Use local squid by default
 ENV HTTP_PROXY http://localhost:3128
 ENV HTTPS_PROXY http://localhost:3128
-
-# Install goreplay
-RUN wget -O /tmp/gor.tar.gz https://github.com/buger/goreplay/releases/download/v0.16.1/gor_0.16.1_x64.tar.gz \
-  && tar -xzf /tmp/gor.tar.gz -C /usr/local/bin \
-  && rm /tmp/gor.tar.gz
 
 # Install app.
 COPY . .
