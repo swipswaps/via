@@ -4,6 +4,7 @@ ndg-httpsclient
 uwsgi>=2.0
 werkzeug>=0.10.4,<0.11.0
 static>=1.1.1,<1.2.0
+PyYAML===3.13
 
 # this points to the 'fix-empty-srcset' branch in hypothesis/pywb
 # this is a fork of the upstream pywb (v0.11.0) with:
