@@ -9,6 +9,7 @@ help:
 	@echo "make format            Correctly format the code"
 	@echo "make checkformatting   Crash if the code isn't correctly formatted"
 	@echo "make test              Run the unit tests"
+	@echo "make pip-compile       Compile requirements.in to requirements.txt"
 	@echo "make docker            Make the app's Docker image"
 	@echo "make clean             Delete development artefacts (cached files, "
 	@echo "                       dependencies, etc)"
@@ -36,6 +37,10 @@ format:
 .PHONY: checkformatting
 checkformatting:
 	tox -q -e py36-checkformatting
+
+.PHONY: pip-compile
+pip-compile:
+	tox -q -e py27-dev -- pip-compile --output-file requirements.txt requirements.in
 
 .PHONY: clean
 clean:
