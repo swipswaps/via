@@ -30,7 +30,7 @@ six==1.12.0               # via cryptography, pyopenssl, requests-file
 static==1.1.1
 surt==0.2
 tldextract==2.2.1         # via surt
-urllib3==1.24.1           # via requests
+urllib3==1.24.2           # via requests
 uwsgi==2.0.18
 watchdog==0.9.0
 webencodings==0.5.1
