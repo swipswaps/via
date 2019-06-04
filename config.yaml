@@ -20,6 +20,8 @@ collections:
                 no_rewrite_prefixes:
                     - 'http://localhost:5000/' # Hypothesis dev server
                     - 'http://localhost:3001/' # Hypothesis client dev server
+                    - 'https://localhost:5000/' # Hypothesis dev server (SSL)
+                    - 'https://localhost:3001/' # Hypothesis client dev server (SSL)
                     - 'https://hypothes.is/'
                     - 'https://qa.hypothes.is/'
                     - 'https://cdn.hypothes.is/'

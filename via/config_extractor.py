@@ -66,7 +66,10 @@ def pop_query_params_with_prefix(environ, prefix):
 
     updated_qs = urlencode(updated_query_items)
     environ["QUERY_STRING"] = updated_qs
-    environ["REQUEST_URI"] = environ["REQUEST_URI"][: -len(orig_qs)] + updated_qs
+
+    if "REQUEST_URI" in environ:
+        # If using uwsgi, update `REQUEST_URI`.
+        environ["REQUEST_URI"] = environ["REQUEST_URI"][: -len(orig_qs)] + updated_qs
 
     return popped_params
 
