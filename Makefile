@@ -11,6 +11,7 @@ help:
 	@echo "make test              Run the unit tests"
 	@echo "make pip-compile       Compile requirements.in to requirements.txt"
 	@echo "make docker            Make the app's Docker image"
+	@echo "make run-docker        Run the app's Docker image"
 	@echo "make clean             Delete development artefacts (cached files, "
 	@echo "                       dependencies, etc)"
 
@@ -25,6 +26,16 @@ test:
 .PHONY: docker
 docker:
 	docker build -t hypothesis/via:$(DOCKER_TAG) .
+
+.PHONY: run-docker
+run-docker:
+	docker run \
+		--net h_default \
+		-e H_EMBED_URL \
+		-p 9080:9080 \
+		--name "via" \
+		hypothesis/via:$(DOCKER_TAG)
+
 
 .PHONY: lint
 lint:
