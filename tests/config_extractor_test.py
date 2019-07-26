@@ -174,8 +174,8 @@ class TestConfigExtractor(object):
         def get(url, upstream_app=app):
             client = Client(upstream_app, Response)
 
-            # `Client` does not set "REQUEST_URI" as an actual app would, so
-            # set it manually.
+            # `Client` does not set "REQUEST_URI" as this is set by uwsgi in
+            # the actual app. Set it manually here.
             environ = {"REQUEST_URI": url}
 
             return client.get(url, environ_overrides=environ)

@@ -18,6 +18,10 @@ help:
 dev:
 	tox -q -e py27-dev
 
+.PHONY: dev-ssl
+dev-ssl:
+	tox -q -e py27-dev-ssl
+
 .PHONY: test
 test:
 	tox -q -e py27-tests

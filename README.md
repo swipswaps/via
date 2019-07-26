@@ -62,3 +62,20 @@ In addition, you will also need to make sure that the host the client is being s
 export H_EMBED_URL=http://localhost:5000/embed.js
 make dev
 ```
+
+### Serving Via over SSL in development
+
+To serve Via over SSL locally, you will need to:
+
+1. Create SSL certificates for localhost (you can reuse these for other Hypothesis
+   services). See https://hyp.is/5xXOUMiuEeiDy2smINki5w/letsencrypt.org/docs/certificates-for-localhost/
+2. Copy or symlink the certificate and private key as `.tlscert.pem` and
+   `.tlskey.pem` respectively in the root of your checkout of this repository.
+3. Start Via using `make dev-ssl`
+
+Steps (1) and (2) are the same as for setting up SSL support in other Hypothesis
+projects.
+
+Note that this configuration is *not* suitable for production use.
+Hypothesis' production services use SSL termination provided by AWS load
+balancers.
