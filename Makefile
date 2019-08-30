@@ -15,15 +15,15 @@ help:
 	@echo "                       dependencies, etc)"
 
 .PHONY: dev
-dev:
+dev: python
 	tox -q -e py27-dev
 
 .PHONY: dev-ssl
-dev-ssl:
+dev-ssl: python
 	tox -q -e py27-dev-ssl
 
 .PHONY: test
-test:
+test: python
 	tox -q -e py27-tests
 
 .PHONY: docker
@@ -31,24 +31,28 @@ docker:
 	docker build -t hypothesis/via:$(DOCKER_TAG) .
 
 .PHONY: lint
-lint:
+lint: python
 	tox -q -e py27-lint
 
 .PHONY: format
-format:
+format: python
 	tox -q -e py36-format
 
 .PHONY: checkformatting
-checkformatting:
+checkformatting: python
 	tox -q -e py36-checkformatting
 
 .PHONY: pip-compile
-pip-compile:
+pip-compile: python
 	tox -q -e py27-dev -- pip-compile --output-file requirements.txt requirements.in
 
 .PHONY: clean
 clean:
 	find . -type f -name "*.py[co]" -delete
 	find . -type d -name "__pycache__" -delete
+
+.PHONY: python
+python:
+	@./bin/install-python
 
 DOCKER_TAG = latest

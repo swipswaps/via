@@ -3,11 +3,9 @@
 via.hypothes.is
 ================
 
-This project uses the live web rewriting and banner injection capabilities of [pywb web replay system](https://github.com/ikreymer/pywb) to automatically add [hypothes.is](https://hypothes.is) annotations to any web pages.
-
-(Previously, to see Hypothesis annotations, the user has to manually install a plugin or enable the annotations via a bookmarklet).
-
-This project is a demonstration of of using a web replay rewriting system for automatically showing annotations, which allows the annotations to (in theory) work on any modern browser.
+This project uses the live web rewriting and banner injection capabilities of
+[pywb web replay system](https://github.com/ikreymer/pywb) to automatically add
+[hypothes.is](https://hypothes.is) annotations to any web pages.
 
 Hosted at: https://via.hypothes.is/
 
@@ -17,51 +15,55 @@ Some examples:
 
 [https://via.hypothes.is/http://www.autodidacts.io/openbci-brain-basics-neurons-structure-and-biology/](https://via.hypothes.is/http://www.autodidacts.io/openbci-brain-basics-neurons-structure-and-biology/)
 
+Installing Via in a development environment
+-------------------------------------------
 
-### Running Via locally
+### You will need
 
-#### With Docker
+* Via integrates with h and the Hypothesis client, so you will need to
+  set up development environments for each of those before you can develop Via:
 
-Via now includes a Dockerfile to be more easily deployed in Docker.
+  * https://h.readthedocs.io/en/latest/developing/install/
+  * https://h.readthedocs.io/projects/client/en/latest/developers/developing/
 
-To build the container:
-```
-docker build -t hypothesis/via .
-```
+* [Git](https://git-scm.com/)
 
-To run the container afterwards:
-```
-docker run --name via -d -p 9080:9080 hypothesis/via
-```
+* [pyenv](https://github.com/pyenv/pyenv)
+  Follow the instructions in the pyenv README to install it.
+  The Homebrew method works best on macOS.
 
-This will start a container on the Docker host, mapped to port 9080.
+### Clone the git repo
 
-To stop:
+    git clone https://github.com/hypothesis/via.git
 
-```
-docker stop via
-```
+This will download the code into a `via` directory in your current working
+directory. You need to be in the `via` directory from the remainder of the
+installation process:
 
-### Without Docker
+    cd via
 
-You can also run Via locally without using Docker:
+### Set the environment variables
 
-```shellsession
-make dev
-```
+Set these environment variables in your shell (see
+[Configuration](#configuration) below for documentation of all bouncer's
+environment variables and what they do):
 
-When Via is running, you can access it locally at [localhost:9080](http://localhost:9080).
+    export H_EMBED_URL="http://localhost:5000/embed.js"
 
-### Using a local Hypothesis service and client
+### Start the development server
 
-Via serves the client from the URL specified via the `H_EMBED_URL` environment variable. To make Via use a local version of the client, or one served from a domain other than hypothes.is, set this variable before running the service.
+    make dev
 
-In addition, you will also need to make sure that the host the client is being served from is listed under the `no_rewrite_prefixes` key in [config.yaml](config.yaml).
+The first time you run `make dev` it might take a while to start because it'll
+need to install the application dependencies and build the assets.
 
-```shellsession
-export H_EMBED_URL=http://localhost:5000/embed.js
-make dev
-```
+This will start the server on port 9080 (http://localhost:9080), reload the
+application whenever changes are made to the source code, and restart it should
+it crash for some reason.
+
+**That's it!** You’ve finished setting up your Via development environment. Run
+`make help` to see all the commands that're available for running the tests,
+linting, code formatting, etc.
 
 ### Serving Via over SSL in development
 
