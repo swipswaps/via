@@ -3,6 +3,7 @@ from pkg_resources import resource_filename
 import logging
 import os
 
+import newrelic.agent
 import pywb.apps.wayback
 import static
 from werkzeug.exceptions import NotFound
@@ -83,3 +84,4 @@ application = wsgi.DispatcherMiddleware(
         "/h": redirect_strip_matched_path,
     },
 )
+application = newrelic.agent.WSGIApplicationWrapper(application, name="proxy")
