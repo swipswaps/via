@@ -104,6 +104,9 @@ class ConfigExtractor(object):
         if "via.open_sidebar" in via_params:
             template_params["h_open_sidebar"] = True
 
+        if "via.features" in via_params:
+            template_params["via_features"] = via_params["via.features"].split(",")
+
         environ["pywb.template_params"] = template_params
 
         # A wrapper which intercepts redirects and adds any params from `via_params`
