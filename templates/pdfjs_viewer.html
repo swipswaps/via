@@ -1,5 +1,5 @@
 {% if "pdfjs2" in via_features %}
-<p>PDF.js 2 support is not implemented yet</p>
+{% include "pdfjs2_viewer.html" %}
 {% else %}
 {% include "pdfjs1_viewer.html" %}
 {% endif %}
