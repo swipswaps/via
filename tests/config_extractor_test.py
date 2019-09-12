@@ -102,6 +102,12 @@ class TestConfigExtractor(object):
             "h_request_config": "https://lms.hypothes.is",
         }
 
+    def test_it_sets_via_features_template_param(self, client_get):
+        resp = client_get("/example.com?q=foobar&" "via.features=feature_a,feature_b")
+
+        template_params = json.loads(resp.data).get("pywb.template_params")
+        assert template_params == {"via_features": ["feature_a", "feature_b"]}
+
     def test_it_passes_non_matching_query_params_to_upstream_app(self, client_get):
         resp = client_get("/example.com?q=foobar&via.open_sidebar=1")
 
