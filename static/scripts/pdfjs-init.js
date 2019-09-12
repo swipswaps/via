@@ -20,22 +20,12 @@ document.addEventListener('webviewerloaded', function(event) {
   // being overridden with the default value of `false`.
   appOptions.set('disablePreferences', true);
 
+  // Prevent loading of default viewer PDF.
+  appOptions.set('defaultUrl', '');
+
   // Read configuration rendered into template as global vars.
   var url = window.VIA_DOCUMENT_URL;
   var clientEmbedUrl = window.VIA_H_EMBED_URL;
-
-  // Load the PDF specified in the URL.
-  //
-  // See https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions#can-i-specify-a-different-pdf-in-the-default-viewer and https://github.com/mozilla/pdf.js/issues/10435#issuecomment-452706770
-  appOptions.set('defaultUrl', ''); // Prevent loading of default viewer PDF.
-  app.open({
-    // Load PDF through Via to work around CORS restrictions.
-    url: '/id_/' + url,
-
-    // Make sure `PDFViewerApplication.url` returns the original URL, as this
-    // is the URL associated with annotations.
-    originalUrl: url,
-  });
 
   // Wait for the PDF viewer to be fully initialized and then load the Hypothesis client.
   //
@@ -60,5 +50,22 @@ document.addEventListener('webviewerloaded', function(event) {
     var embedScript = document.createElement('script');
     embedScript.src = clientEmbedUrl;
     document.body.appendChild(embedScript);
+
+    // Load the PDF specified in the URL.
+    //
+    // This is done after the viewer components are initialized to avoid some
+    // race conditions in `PDFViewerApplication` if the PDF finishes loading
+    // (eg. from the HTTP cache) before the viewer is fully initialized.
+    //
+    // See https://github.com/mozilla/pdf.js/wiki/Frequently-Asked-Questions#can-i-specify-a-different-pdf-in-the-default-viewer
+    // and https://github.com/mozilla/pdf.js/issues/10435#issuecomment-452706770
+    app.open({
+      // Load PDF through Via to work around CORS restrictions.
+      url: '/id_/' + url,
+
+      // Make sure `PDFViewerApplication.url` returns the original URL, as this
+      // is the URL associated with annotations.
+      originalUrl: url,
+    });
   });
 });
