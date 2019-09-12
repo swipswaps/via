@@ -40,8 +40,8 @@ HYPOTHESIS_HEADER = """
 -#}
 <link rel="canonical" href="{{ url }}"/>
 <script>
-var VIA_DOCUMENT_URL = '{{ url }}';
-var VIA_H_EMBED_URL = '{{ h_embed_url }}';
+window.VIA_DOCUMENT_URL = '{{ url }}';
+window.VIA_H_EMBED_URL = '{{ h_embed_url }}';
 </script>
 
 <script src="/static/scripts/pdfjs-init.js"></script>

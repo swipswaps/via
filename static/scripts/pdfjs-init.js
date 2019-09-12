@@ -21,8 +21,8 @@ document.addEventListener('webviewerloaded', function(event) {
   appOptions.set('disablePreferences', true);
 
   // Read configuration rendered into template as global vars.
-  var url = VIA_DOCUMENT_URL;
-  var clientEmbedUrl = VIA_H_EMBED_URL;
+  var url = window.VIA_DOCUMENT_URL;
+  var clientEmbedUrl = window.VIA_H_EMBED_URL;
 
   // Load the PDF specified in the URL.
   //
