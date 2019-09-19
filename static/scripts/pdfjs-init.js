@@ -47,6 +47,18 @@ document.addEventListener('webviewerloaded', function(event) {
   });
 
   pdfjsInitialized.then(function () {
+    // Prevent PDF.js' `Promise` polyfill, if it was used, from being
+    // overwritten by the one that ships with Hypothesis (both from core-js).
+    //
+    // See https://github.com/hypothesis/via/issues/81#issuecomment-531121534
+    if (typeof Promise === 'function' && typeof PromiseRejectionEvent === 'undefined') {
+      window.PromiseRejectionEvent = function FakePromiseRejectionEvent(type, options) {
+        // core-js doesn't actually use this, it just tests for `typeof PromiseRejectionEvent`
+        console.warn('Tried to construct fake `PromiseRejectionEvent`');
+      };
+    }
+
+    // Load the Hypothesis client.
     var embedScript = document.createElement('script');
     embedScript.src = clientEmbedUrl;
     document.body.appendChild(embedScript);
