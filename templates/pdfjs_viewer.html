@@ -1,5 +1,5 @@
-{% if "pdfjs2" in via_features %}
-{% include "pdfjs2_viewer.html" %}
-{% else %}
+{% if "pdfjs1" in via_features %}
 {% include "pdfjs1_viewer.html" %}
+{% else %}
+{% include "pdfjs2_viewer.html" %}
 {% endif %}
