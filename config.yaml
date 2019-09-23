@@ -37,5 +37,6 @@ collections:
 
 search_html: index.html
 home_html: index.html
+urlrewriter_class: !!python/name:via.rewriter.UrlRewriter
 
 framed_replay: false
