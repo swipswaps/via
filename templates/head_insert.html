@@ -1,0 +1,13 @@
+{#
+This is a replacement for the default HTML that pywb injects at the top of
+proxied pages.
+
+The default `head_insert.html` template adds the "wombat" JavaScript rewriting
+code, which does client-side rewriting of dynamically created elements and XHR
+requests to route them through the proxy.
+
+Hypothesis is trying to avoid that as it slows down the page load considerably
+and adds a lot of other resources.
+#}
+{% include banner_html ignore missing %}
+
