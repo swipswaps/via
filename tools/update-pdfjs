@@ -50,4 +50,4 @@ BASEDIR=$(dirname $0)
 python \
   $BASEDIR/generate-pdf-viewer-html.py \
   $DEST_DIR/web/viewer.html \
-  templates/pdfjs2_viewer.html
+  templates/pdfjs_viewer.html
