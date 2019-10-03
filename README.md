@@ -42,14 +42,6 @@ installation process:
 
     cd via
 
-### Set the environment variables
-
-Set these environment variables in your shell (see
-[Configuration](#configuration) below for documentation of all bouncer's
-environment variables and what they do):
-
-    export H_EMBED_URL="http://localhost:5000/embed.js"
-
 ### Start the development server
 
     make dev
