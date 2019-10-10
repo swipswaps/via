@@ -44,7 +44,7 @@ checkformatting: python
 
 .PHONY: pip-compile
 pip-compile: python
-	tox -q -e py27-dev -- pip-compile --output-file requirements.txt requirements.in
+	tox -q -e py27-pip-compile
 
 .PHONY: clean
 clean:
