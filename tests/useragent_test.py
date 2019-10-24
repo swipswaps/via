@@ -1,9 +1,9 @@
 import pytest
-
-from via.useragent import UserAgentDecorator
 from werkzeug import wsgi
 from werkzeug.test import Client
 from werkzeug.wrappers import BaseResponse as Response
+
+from via.useragent import UserAgentDecorator
 
 
 class TestUserAgentDecorator(object):

@@ -1,9 +1,9 @@
 import pytest
-
-from via.security import RequestHeaderSanitiser, ResponseHeaderSanitiser
 from werkzeug.test import Client
 from werkzeug.wrappers import BaseRequest as Request
 from werkzeug.wrappers import BaseResponse as Response
+
+from via.security import RequestHeaderSanitiser, ResponseHeaderSanitiser
 
 
 class TestRequestHeaderSanitizer(object):

@@ -4,15 +4,15 @@ import json
 import urlparse
 
 import pytest
+from werkzeug import wsgi
+from werkzeug.test import Client
+from werkzeug.wrappers import BaseResponse as Response
 
 from via.config_extractor import (
     ConfigExtractor,
     pop_query_params_with_prefix,
     rewrite_location_header,
 )
-from werkzeug import wsgi
-from werkzeug.test import Client
-from werkzeug.wrappers import BaseResponse as Response
 
 DEFAULT_CONTENT_TYPE = ("Content-Type", "text/html")
 
