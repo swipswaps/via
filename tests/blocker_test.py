@@ -1,10 +1,9 @@
 import pytest
 
+from via.blocker import Blocker
+from werkzeug import wsgi
 from werkzeug.test import Client
 from werkzeug.wrappers import BaseResponse as Response
-from werkzeug import wsgi
-
-from via.blocker import Blocker
 
 block_examples = pytest.mark.parametrize(
     "path,blocked,status_code,msg",

@@ -1,20 +1,19 @@
-from pkg_resources import resource_filename
-
 import logging
 import os
+
+from pkg_resources import resource_filename
 
 import newrelic.agent
 import pywb.apps.wayback
 import static
-from werkzeug.exceptions import NotFound
-from werkzeug.utils import redirect
-from werkzeug.wrappers import Request
-from werkzeug import wsgi
-
 from via.blocker import Blocker
 from via.config_extractor import ConfigExtractor
 from via.security import RequestHeaderSanitiser, ResponseHeaderSanitiser
 from via.useragent import UserAgentDecorator
+from werkzeug import wsgi
+from werkzeug.exceptions import NotFound
+from werkzeug.utils import redirect
+from werkzeug.wrappers import Request
 
 logging.disable(logging.INFO)
 
