@@ -1,7 +1,7 @@
 import pytest
-
 from werkzeug.test import Client
-from werkzeug.wrappers import BaseRequest as Request, BaseResponse as Response
+from werkzeug.wrappers import BaseRequest as Request
+from werkzeug.wrappers import BaseResponse as Response
 
 from via.security import RequestHeaderSanitiser, ResponseHeaderSanitiser
 

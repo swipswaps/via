@@ -1,11 +1,11 @@
 from __future__ import unicode_literals
 
 import os
+from urlparse import urlparse
 
 from jinja2 import Environment, FileSystemLoader
 from werkzeug import wsgi
 from werkzeug.wrappers import BaseResponse as Response
-from urlparse import urlparse
 
 TEMPLATES_DIR = os.path.dirname(os.path.abspath(__file__)) + "/../templates/"
 DOMAINS = [

@@ -1,8 +1,7 @@
 import pytest
-
+from werkzeug import wsgi
 from werkzeug.test import Client
 from werkzeug.wrappers import BaseResponse as Response
-from werkzeug import wsgi
 
 from via.useragent import UserAgentDecorator
 

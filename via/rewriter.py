@@ -1,11 +1,10 @@
 from __future__ import unicode_literals
 
 import cgi
+
 import jinja2
-
-from pywb.webapp.live_rewrite_handler import RewriteHandler
 from pywb.framework.wbrequestresponse import WbResponse
-
+from pywb.webapp.live_rewrite_handler import RewriteHandler
 
 env = jinja2.Environment(
     loader=jinja2.FileSystemLoader("templates/", encoding="utf-8-sig")
