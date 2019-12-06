@@ -17,7 +17,7 @@ node {
         testApp(image: img, runArgs: '-u root -e HTTP_PROXY= -e HTTPS_PROXY= -e SITE_PACKAGES=true') {
             sh 'apk add py2-pip'
             sh 'pip install -q tox>=3.8.0'
-            sh 'cd /var/lib/via && tox -e py27-tests'
+            sh 'cd /var/lib/via && tox'
         }
     }
 
