@@ -16,40 +16,40 @@ help:
 
 .PHONY: dev
 dev: python
-	tox -q -e py27-dev
+	@tox -qe dev
 
 .PHONY: dev-ssl
 dev-ssl: python
-	tox -q -e py27-dev-ssl
+	@tox -qe dev-ssl
 
 .PHONY: test
 test: python
-	tox -q -e py27-tests
+	@tox -q
 
 .PHONY: docker
 docker:
-	docker build -t hypothesis/via:$(DOCKER_TAG) .
+	@docker build -t hypothesis/via:$(DOCKER_TAG) .
 
 .PHONY: lint
 lint: python
-	tox -q -e py27-lint
+	@tox -qe lint
 
 .PHONY: format
 format: python
-	tox -q -e py36-format
+	@tox -qe py36-format
 
 .PHONY: checkformatting
 checkformatting: python
-	tox -q -e py36-checkformatting
+	@tox -qe py36-checkformatting
 
 .PHONY: pip-compile
 pip-compile: python
-	tox -q -e py27-pip-compile
+	@tox -qe pip-compile
 
 .PHONY: clean
 clean:
-	find . -type f -name "*.py[co]" -delete
-	find . -type d -name "__pycache__" -delete
+	@find . -type f -name "*.py[co]" -delete
+	@find . -type d -name "__pycache__" -delete
 
 .PHONY: python
 python:
