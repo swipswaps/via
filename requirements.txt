@@ -7,7 +7,7 @@
 -e git+git://github.com/hypothesis/pywb.git@2d7602cd6d8a6dafe7353b16579dc757aaead6ed#egg=pywb
 argh==0.26.2              # via watchdog
 certifi==2019.3.9         # via requests
-cffi==1.12.2
+cffi==1.13.2
 chardet==3.0.4            # via requests
 gevent==1.4.0
 greenlet==0.4.15          # via gevent
