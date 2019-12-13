@@ -1,6 +1,5 @@
 cffi
 gevent
-ndg-httpsclient
 uwsgi
 werkzeug
 static
