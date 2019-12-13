@@ -16,7 +16,7 @@ idna==2.8                 # via requests, tldextract
 jinja2==2.10.1
 markupsafe==1.1.1         # via jinja2
 ndg-httpsclient==0.5.1
-newrelic==5.0.2.126
+newrelic==5.4.0.132
 pathtools==0.1.2          # via watchdog
 pyasn1==0.4.5             # via ndg-httpsclient
 pycparser==2.19           # via cffi
