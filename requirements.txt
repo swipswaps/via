@@ -18,7 +18,7 @@ newrelic==5.4.0.132
 pathtools==0.1.2          # via watchdog
 pycparser==2.19           # via cffi
 pystache==0.5.4           # via static
-pyyaml==5.1
+pyyaml==5.2
 redis==3.2.1
 requests-file==1.4.3      # via tldextract
 requests==2.21.0          # via requests-file, tldextract
