@@ -14,7 +14,7 @@ greenlet==0.4.15          # via gevent
 idna==2.8                 # via requests, tldextract
 jinja2==2.10.1
 markupsafe==1.1.1         # via jinja2
-newrelic==5.4.0.132
+newrelic==5.4.1.134
 pathtools==0.1.2          # via watchdog
 pycparser==2.19           # via cffi
 pystache==0.5.4           # via static
