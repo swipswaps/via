@@ -1,3 +1,4 @@
+import mock
 import pytest
 from werkzeug import wsgi
 from werkzeug.test import Client
@@ -5,21 +6,25 @@ from werkzeug.wrappers import BaseResponse as Response
 
 from via.blocker import Blocker
 
+# Tests for blocked and non-blocked responses.
+# These assume the default blocklist (via/default-blocklist.txt).
 block_examples = pytest.mark.parametrize(
     "path,blocked,status_code,msg",
     [
+        # Requests with no domain in the path.
         ("/", False, 200, ""),
-        ("/http://giraf.com", False, 200, "scary upstream content"),
-        ("/http://giraffe.com", True, 400, "disallow access"),
-        ("/http://giraffe.com/", True, 400, "disallow access"),
-        ("/http://giraffe.com/neck", True, 400, "disallow access"),
-        ("/http://bird.com", False, 200, "scary upstream content"),
-        ("/http://birds.com", True, 451, "cannot be annotated"),
-        ("/https://birds.com", True, 451, "cannot be annotated"),
-        ("/birds.com", True, 451, "cannot be annotated"),
-        ("/giraffe.com", True, 400, "disallow access"),
-        ("/bird.com", False, 200, "scary upstream content"),
-        ("/giraff.com", False, 200, "scary upstream content"),
+        # Non-blocked requests.
+        ("/giraffe.com", False, 200, "scary upstream content"),
+        ("/http://giraffe.com", False, 200, "scary upstream content"),
+        ("/https://giraffe.com", False, 200, "scary upstream content"),
+        ("/https://giraffe.com/foobar", False, 200, "scary upstream content"),
+        # A domain blocked for legal reasons.
+        ("/nautil.us", True, 451, "disallow access"),
+        # Different variations of a blocked domain.
+        ("/www.youtube.com", True, 200, "cannot be annotated"),
+        ("/http://www.youtube.com", True, 200, "cannot be annotated"),
+        ("/https://www.youtube.com", True, 200, "cannot be annotated"),
+        ("/https://www.youtube.com/foobar", True, 200, "cannot be annotated"),
     ],
 )
 
@@ -43,23 +48,69 @@ class TestBlocker(object):
         else:
             assert resp.headers["content-type"].startswith("text/plain")
 
+    def test_it_reads_blocklist_from_file(self, file_open, file_stat):
+        blocklist_path = "/tmp/custom_blocklist.txt"
+        file_open.return_value.read.return_value = "timewaster.com blocked"
+        app = Blocker(upstream_app, blocklist_path)
+        client = Client(app, Response)
+
+        # The blocklist should be fetched when the app is instantiated.
+        file_open.assert_called_with(blocklist_path)
+
+        # Fetch a site that is blocked in the custom blocklist.
+        resp = client.get("/timewaster.com")
+        assert "cannot be annotated" in resp.data
+
+        # Fetch a site that is not blocked in the custom blocklist,
+        resp = client.get("/youtube.com")
+        assert "scary upstream content" in resp.data
+
+    def test_it_rereads_blocklist_if_mtime_changes(self, client, file_open, file_stat):
+        blocklist_path = "/tmp/custom_blocklist.txt"
+        file_open.return_value.read.return_value = ""
+        app = Blocker(upstream_app, blocklist_path)
+        client = Client(app, Response)
+
+        file_open.reset_mock()
+        resp = client.get("/timewaster.com")
+        assert "scary upstream content" in resp.data
+
+        file_open.assert_not_called()
+        file_open.return_value.read.return_value = "timewaster.com blocked"
+        file_stat.return_value.st_mtime = 200
+
+        resp = client.get("/timewaster.com")
+        file_open.assert_called_with(blocklist_path)
+        assert "cannot be annotated" in resp.data
+
+    def test_it_ignores_invalid_lines_in_blocklist(self, file_open):
+        file_open.return_value.read.return_value = """
+timewaster.com blocked
+invalid-line
+foo bar baz
+
+# This is a comment
+"""
+        app = Blocker(upstream_app)
+        client = Client(app, Response)
+
+        resp = client.get("/timewaster.com")
+        assert "cannot be annotated" in resp.data
+
     @pytest.fixture
-    def app(self):
-        return Blocker(
-            upstream_app,
-            domains=[
-                {
-                    "domain": "giraffe.com",
-                    "template": "disallow_access.html.jinja2",
-                    "status": 400,
-                },
-                {
-                    "domain": "birds.com",
-                    "template": "could_not_process.html.jinja2",
-                    "status": 451,
-                },
-            ],
-        )
+    def file_open(self):
+        with mock.patch("via.blocker.open") as mock_open:
+            yield mock_open
+
+    @pytest.fixture
+    def file_stat(self):
+        with mock.patch("via.blocker.os.stat") as stat_mock:
+            stat_mock.st_mtime = 100
+            yield stat_mock
+
+    @pytest.fixture
+    def app(self, file_stat):
+        return Blocker(upstream_app)
 
     @pytest.fixture
     def client(self, app):
