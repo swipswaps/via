@@ -55,6 +55,8 @@ RUN mkdir /var/spool/squid \
 ENV HTTP_PROXY http://localhost:3128
 ENV HTTPS_PROXY http://localhost:3128
 
+ENV BLOCKLIST_PATH /tmp/blocklist.txt
+
 # Install app.
 COPY . .
 
