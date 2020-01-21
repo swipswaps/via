@@ -1,12 +1,16 @@
-FROM alpine:3.10.3
+FROM alpine:3.11.3
 MAINTAINER Hypothes.is Project and Ilya Kreymer
 
 # Install runtime deps.
+# nb. py2-pip is installed as a runtime dependency because it includes the
+# `pkg_resources` module via the `setuptools` package which Via depends on.
 RUN apk add --update \
     git \
     collectd \
     collectd-disk \
     libffi \
+    python2 \
+    py2-pip \
     openssl \
     supervisor \
     squid \
@@ -31,9 +35,7 @@ RUN apk add --update --virtual build-deps \
     libffi-dev \
     linux-headers \
     openssl-dev \
-    python2 \
     python2-dev \
-    py2-pip \
   && pip install --no-cache-dir -U pip \
   && pip install --no-cache-dir -r requirements.txt \
   && apk del build-deps \
