@@ -13,5 +13,5 @@ if [ -z "${BLOCKLIST_PATH:-}" ]; then
 fi
 
 echo "Fetching blocklist from $BLOCKLIST_URL as $BLOCKLIST_PATH"
-curl --silent $BLOCKLIST_URL > $BLOCKLIST_PATH.new
+curl --silent --max-time 5 $BLOCKLIST_URL > $BLOCKLIST_PATH.new
 mv $BLOCKLIST_PATH.new $BLOCKLIST_PATH
