@@ -71,15 +71,22 @@ class TestBlocker(object):
         app = Blocker(upstream_app, blocklist_path)
         client = Client(app, Response)
 
+        # An initial request should not re-read the blocklist file,
+        # as the mtime is unchanged.
         file_open.reset_mock()
+
         resp = client.get("/timewaster.com")
-        assert "scary upstream content" in resp.data
 
         file_open.assert_not_called()
+        assert "scary upstream content" in resp.data
+
+        # Simulate a change in content and mtime of the blocklist file, which
+        # should cause it to be re-read on the next request.
         file_open.return_value.read.return_value = "timewaster.com blocked"
         file_stat.return_value.st_mtime = 200
 
         resp = client.get("/timewaster.com")
+
         file_open.assert_called_with(blocklist_path)
         assert "cannot be annotated" in resp.data
 
