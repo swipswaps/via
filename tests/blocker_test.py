@@ -1,3 +1,5 @@
+from StringIO import StringIO
+
 import mock
 import pytest
 from werkzeug import wsgi
@@ -29,6 +31,17 @@ block_examples = pytest.mark.parametrize(
 )
 
 
+class FakeFile(object):
+    def __init__(self, content):
+        self.content = content
+
+    def __enter__(self):
+        return StringIO(self.content)
+
+    def __exit__(self, type, value, traceback):
+        pass
+
+
 class TestBlocker(object):
     @block_examples
     def test_serves_template(self, client, path, blocked, status_code, msg):
@@ -50,7 +63,7 @@ class TestBlocker(object):
 
     def test_it_reads_blocklist_from_file(self, file_open, file_stat):
         blocklist_path = "/tmp/custom_blocklist.txt"
-        file_open.return_value.read.return_value = "timewaster.com blocked"
+        file_open.return_value = FakeFile("timewaster.com blocked")
         app = Blocker(upstream_app, blocklist_path)
         client = Client(app, Response)
 
@@ -67,7 +80,7 @@ class TestBlocker(object):
 
     def test_it_rereads_blocklist_if_mtime_changes(self, client, file_open, file_stat):
         blocklist_path = "/tmp/custom_blocklist.txt"
-        file_open.return_value.read.return_value = ""
+        file_open.return_value = FakeFile("")
         app = Blocker(upstream_app, blocklist_path)
         client = Client(app, Response)
 
@@ -82,7 +95,7 @@ class TestBlocker(object):
 
         # Simulate a change in content and mtime of the blocklist file, which
         # should cause it to be re-read on the next request.
-        file_open.return_value.read.return_value = "timewaster.com blocked"
+        file_open.return_value = FakeFile("timewaster.com blocked")
         file_stat.return_value.st_mtime = 200
 
         resp = client.get("/timewaster.com")
@@ -91,13 +104,15 @@ class TestBlocker(object):
         assert "cannot be annotated" in resp.data
 
     def test_it_ignores_invalid_lines_in_blocklist(self, file_open):
-        file_open.return_value.read.return_value = """
+        file_open.return_value = FakeFile(
+            """
 timewaster.com blocked
 invalid-line
 foo bar baz
 
 # This is a comment
 """
+        )
         app = Blocker(upstream_app)
         client = Client(app, Response)
 

@@ -82,20 +82,20 @@ class Blocker(object):
 
 
 def _parse_blocklist(path):
-    blocklist_content = open(path).read()
     blocked_domains = {}
 
-    for line in blocklist_content.split("\n"):
-        line = line.strip()
+    with open(path) as blocklist:
+        for line in blocklist:
+            line = line.strip()
 
-        if not line or line.startswith("#"):
-            # Empty or comment line.
-            continue
+            if not line or line.startswith("#"):
+                # Empty or comment line.
+                continue
 
-        try:
-            domain, reason = line.split(" ")
-            blocked_domains[domain] = reason
-        except Exception:
-            pass
+            try:
+                domain, reason = line.split(" ")
+                blocked_domains[domain] = reason
+            except Exception:
+                pass
 
     return blocked_domains
