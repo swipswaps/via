@@ -8,6 +8,9 @@ from werkzeug.wrappers import BaseResponse as Response
 
 from via.blocker import Blocker
 
+# Simulated response from the proxied website, returned if the content is not blocked.
+UPSTREAM_CONTENT = "the upstream content"
+
 # Tests for blocked and non-blocked responses.
 # These assume the default blocklist (via/default-blocklist.txt).
 block_examples = pytest.mark.parametrize(
@@ -16,10 +19,10 @@ block_examples = pytest.mark.parametrize(
         # Requests with no domain in the path.
         ("/", False, 200, ""),
         # Non-blocked requests.
-        ("/giraffe.com", False, 200, "scary upstream content"),
-        ("/http://giraffe.com", False, 200, "scary upstream content"),
-        ("/https://giraffe.com", False, 200, "scary upstream content"),
-        ("/https://giraffe.com/foobar", False, 200, "scary upstream content"),
+        ("/giraffe.com", False, 200, UPSTREAM_CONTENT),
+        ("/http://giraffe.com", False, 200, UPSTREAM_CONTENT),
+        ("/https://giraffe.com", False, 200, UPSTREAM_CONTENT),
+        ("/https://giraffe.com/foobar", False, 200, UPSTREAM_CONTENT),
         # A domain blocked for legal reasons.
         ("/nautil.us", True, 451, "disallow access"),
         # Different variations of a blocked domain.
@@ -76,7 +79,7 @@ class TestBlocker(object):
 
         # Fetch a site that is not blocked in the custom blocklist,
         resp = client.get("/youtube.com")
-        assert "scary upstream content" in resp.data
+        assert UPSTREAM_CONTENT in resp.data
 
     def test_it_rereads_blocklist_if_mtime_changes(self, client, file_open, file_stat):
         blocklist_path = "/tmp/custom_blocklist.txt"
@@ -91,7 +94,7 @@ class TestBlocker(object):
         resp = client.get("/timewaster.com")
 
         file_open.assert_not_called()
-        assert "scary upstream content" in resp.data
+        assert UPSTREAM_CONTENT in resp.data
 
         # Simulate a change in content and mtime of the blocklist file, which
         # should cause it to be re-read on the next request.
@@ -141,4 +144,4 @@ foo bar baz
 
 @wsgi.responder
 def upstream_app(environ, start_response):
-    return Response("scary upstream content", mimetype="text/plain")
+    return Response(UPSTREAM_CONTENT, mimetype="text/plain")
