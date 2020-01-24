@@ -67,9 +67,14 @@ def app(environ, start_response):
     return pywb.apps.wayback.application(environ, start_response)
 
 
+blocker_kwargs = {}
+blocklist_path = os.environ.get("BLOCKLIST_PATH")
+if blocklist_path:
+    blocker_kwargs["blocklist_path"] = blocklist_path
+
 application = RequestHeaderSanitiser(app)
 application = ResponseHeaderSanitiser(application)
-application = Blocker(application)
+application = Blocker(application, **blocker_kwargs)
 application = UserAgentDecorator(application, "Hypothesis-Via")
 application = ConfigExtractor(application)
 application = wsgi.DispatcherMiddleware(
