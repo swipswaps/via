@@ -1,4 +1,4 @@
-from StringIO import StringIO
+import os
 
 import mock
 import pytest
@@ -40,15 +40,11 @@ block_examples = pytest.mark.parametrize(
 )
 
 
-class FakeFile(object):
-    def __init__(self, content):
-        self.content = content
-
-    def __enter__(self):
-        return StringIO(self.content)
-
-    def __exit__(self, type, value, traceback):
-        pass
+def _write_file(path, content, mtime=None):
+    with open(path, "w") as fp:
+        fp.write(content)
+    if mtime is not None:
+        os.utime(path, (mtime, mtime))
 
 
 class TestBlocker(object):
@@ -70,9 +66,10 @@ class TestBlocker(object):
         else:
             assert resp.headers["content-type"].startswith(UPSTREAM_MIME_TYPE)
 
-    def test_it_reads_blocklist_from_file(self, file_open, file_stat):
-        blocklist_path = "/tmp/custom_blocklist.txt"
-        file_open.return_value = FakeFile("timewaster.com blocked")
+    def test_it_reads_blocklist_from_file(self, file_open, tmp_path):
+        blocklist_path = str(tmp_path / "test-blocklist.txt")
+        _write_file(blocklist_path, "timewaster.com blocked")
+
         app = Blocker(upstream_app, blocklist_path)
         client = Client(app, Response)
 
@@ -87,9 +84,9 @@ class TestBlocker(object):
         resp = client.get("/youtube.com")
         assert UPSTREAM_CONTENT in resp.data
 
-    def test_it_rereads_blocklist_if_mtime_changes(self, client, file_open, file_stat):
-        blocklist_path = "/tmp/custom_blocklist.txt"
-        file_open.return_value = FakeFile("")
+    def test_it_rereads_blocklist_if_mtime_changes(self, client, file_open, tmp_path):
+        blocklist_path = str(tmp_path / "test-blocklist.txt")
+        _write_file(blocklist_path, "", mtime=1000)
         app = Blocker(upstream_app, blocklist_path)
         client = Client(app, Response)
 
@@ -104,25 +101,24 @@ class TestBlocker(object):
 
         # Simulate a change in content and mtime of the blocklist file, which
         # should cause it to be re-read on the next request.
-        file_open.return_value = FakeFile("timewaster.com blocked")
-        file_stat.return_value.st_mtime = 200
+        _write_file(blocklist_path, "timewaster.com blocked", mtime=2000)
 
         resp = client.get("/timewaster.com")
 
         file_open.assert_called_with(blocklist_path)
         assert "cannot be annotated" in resp.data
 
-    def test_it_ignores_invalid_lines_in_blocklist(self, file_open):
-        file_open.return_value = FakeFile(
-            """
+    def test_it_ignores_invalid_lines_in_blocklist(self, tmp_path):
+        blocklist_path = str(tmp_path / "test-blocklist.txt")
+        blocklist_content = """
 timewaster.com blocked
 invalid-line
 foo bar baz
 
 # This is a comment
 """
-        )
-        app = Blocker(upstream_app)
+        _write_file(blocklist_path, blocklist_content)
+        app = Blocker(upstream_app, blocklist_path)
         client = Client(app, Response)
 
         resp = client.get("/timewaster.com")
@@ -130,17 +126,13 @@ foo bar baz
 
     @pytest.fixture
     def file_open(self):
+        # Patch `open` so we can observe calls to it.
         with mock.patch("via.blocker.open") as mock_open:
+            mock_open.side_effect = open
             yield mock_open
 
     @pytest.fixture
-    def file_stat(self):
-        with mock.patch("via.blocker.os.stat") as stat_mock:
-            stat_mock.st_mtime = 100
-            yield stat_mock
-
-    @pytest.fixture
-    def app(self, file_stat):
+    def app(self):
         return Blocker(upstream_app)
 
     @pytest.fixture
