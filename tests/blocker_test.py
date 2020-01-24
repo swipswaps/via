@@ -11,6 +11,12 @@ from via.blocker import Blocker
 # Simulated response from the proxied website, returned if the content is not blocked.
 UPSTREAM_CONTENT = "the upstream content"
 
+# The MIME type associated with `UPSTREAM_CONTENT`. This should be different
+# than the "text/html" type returned for error pages indicating blocked content,
+# so that tests can verify that the expected `Content-Type` header was returned
+# depending on whether the page was blocked.
+UPSTREAM_MIME_TYPE = "text/plain"
+
 # Tests for blocked and non-blocked responses.
 # These assume the default blocklist (via/default-blocklist.txt).
 block_examples = pytest.mark.parametrize(
@@ -62,7 +68,7 @@ class TestBlocker(object):
         if blocked:
             assert resp.headers["content-type"].startswith("text/html")
         else:
-            assert resp.headers["content-type"].startswith("text/plain")
+            assert resp.headers["content-type"].startswith(UPSTREAM_MIME_TYPE)
 
     def test_it_reads_blocklist_from_file(self, file_open, file_stat):
         blocklist_path = "/tmp/custom_blocklist.txt"
@@ -144,4 +150,4 @@ foo bar baz
 
 @wsgi.responder
 def upstream_app(environ, start_response):
-    return Response(UPSTREAM_CONTENT, mimetype="text/plain")
+    return Response(UPSTREAM_CONTENT, mimetype=UPSTREAM_MIME_TYPE)
