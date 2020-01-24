@@ -4,12 +4,11 @@ import os
 from urlparse import urlparse
 
 from jinja2 import Environment, FileSystemLoader
+from pkg_resources import resource_filename
 from werkzeug import wsgi
 from werkzeug.wrappers import BaseResponse as Response
 
-DEFAULT_BLOCKLIST_PATH = (
-    os.path.dirname(os.path.abspath(__file__)) + "/default-blocklist.txt"
-)
+DEFAULT_BLOCKLIST_PATH = resource_filename("via", "default-blocklist.txt")
 TEMPLATES_DIR = os.path.dirname(os.path.abspath(__file__)) + "/../templates/"
 
 
