@@ -22,12 +22,6 @@ WORKDIR /var/lib/via
 
 ADD requirements.txt .
 
-# Install goreplay
-RUN apk add curl \
-  && curl -o /tmp/gor.tar.gz -L 'https://github.com/buger/goreplay/releases/download/v0.16.1/gor_0.16.1_x64.tar.gz' \
-  && tar -xzf /tmp/gor.tar.gz -C /usr/local/bin \
-  && rm /tmp/gor.tar.gz
-
 # Install build deps, build, and then clean up.
 RUN apk add --update --virtual build-deps \
     build-base \
