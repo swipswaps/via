@@ -98,9 +98,15 @@ class ConfigExtractor(object):
 
         via_params = pop_query_params_with_prefix(environ, "via.")
         if "via.request_config_from_frame" in via_params:
-            template_params["h_request_config"] = via_params[
-                "via.request_config_from_frame"
-            ]
+            # Create an object that holds the origin and ancestorLevel
+            template_params["h_request_config"] = {
+                "origin": via_params["via.request_config_from_frame"]
+            }
+            if "via.config_frame_ancestor_level" in via_params:
+                template_params["h_request_config"]["ancestorLevel"] = int(
+                    via_params["via.config_frame_ancestor_level"]
+                )
+
         if "via.open_sidebar" in via_params:
             template_params["h_open_sidebar"] = True
 
