@@ -8,6 +8,7 @@ RUN apk add --update \
     git \
     collectd \
     collectd-disk \
+    curl \
     libffi \
     python2 \
     py2-pip \
