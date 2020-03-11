@@ -95,20 +95,61 @@ class TestConfigExtractor(object):
         resp = client_get(
             "/example.com?q=foobar&"
             "via.open_sidebar=1&"
-            "via.request_config_from_frame=https://lms.hypothes.is"
+            "via.request_config_from_frame=https://lms.hypothes.is&"
+            "via.config_frame_ancestor_level=2"
         )
 
         template_params = json.loads(resp.data).get("pywb.template_params")
         assert template_params == {
-            "h_open_sidebar": True,
-            "h_request_config": "https://lms.hypothes.is",
+            "hypothesis_config": {
+                "appType": "via",
+                "openSidebar": True,
+                "requestConfigFromFrame": {
+                    "origin": "https://lms.hypothes.is",
+                    "ancestorLevel": 2,
+                },
+                "showHighlights": True,
+            }
+        }
+
+    def test_it_does_not_break_when_ancestor_level_is_not_int(self, client_get):
+        resp = client_get(
+            "/example.com?q=foobar&"
+            "via.open_sidebar=1&"
+            "via.request_config_from_frame=https://lms.hypothes.is&"
+            "via.config_frame_ancestor_level=not_an_int"
+        )
+        template_params = json.loads(resp.data).get("pywb.template_params")
+        assert template_params == {
+            "hypothesis_config": {
+                "appType": "via",
+                "openSidebar": True,
+                "requestConfigFromFrame": {"origin": "https://lms.hypothes.is"},
+                "showHighlights": True,
+            }
+        }
+
+    def test_it_does_not_break_when_ancestor_level_is_missing(self, client_get):
+        resp = client_get(
+            "/example.com?q=foobar&"
+            "via.open_sidebar=1&"
+            "via.request_config_from_frame=https://lms.hypothes.is"
+        )
+        template_params = json.loads(resp.data).get("pywb.template_params")
+        assert template_params == {
+            "hypothesis_config": {
+                "appType": "via",
+                "openSidebar": True,
+                "requestConfigFromFrame": {"origin": "https://lms.hypothes.is"},
+                "showHighlights": True,
+            }
         }
 
     def test_it_sets_via_features_template_param(self, client_get):
         resp = client_get("/example.com?q=foobar&" "via.features=feature_a,feature_b")
 
         template_params = json.loads(resp.data).get("pywb.template_params")
-        assert template_params == {"via_features": ["feature_a", "feature_b"]}
+        assert template_params["via_features"] == ["feature_a", "feature_b"]
 
     def test_it_passes_non_matching_query_params_to_upstream_app(self, client_get):
         resp = client_get("/example.com?q=foobar&via.open_sidebar=1")
