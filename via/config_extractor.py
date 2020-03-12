@@ -94,15 +94,12 @@ class ConfigExtractor(object):
         self._application = application
 
     def __call__(self, environ, start_response):
-        template_params = environ.get("pywb.template_params", {})
-
         via_params = pop_query_params_with_prefix(environ, "via.")
-        if "via.request_config_from_frame" in via_params:
-            template_params["h_request_config"] = via_params[
-                "via.request_config_from_frame"
-            ]
-        if "via.open_sidebar" in via_params:
-            template_params["h_open_sidebar"] = True
+
+        template_params = environ.get("pywb.template_params", {})
+        template_params["hypothesis_config"] = self._make_hypothesis_client_config(
+            via_params
+        )
 
         if "via.features" in via_params:
             template_params["via_features"] = via_params["via.features"].split(",")
@@ -126,3 +123,29 @@ class ConfigExtractor(object):
             return start_response(status, headers, exc_info)
 
         return self._application(environ, start_response_wrapper)
+
+    def _make_hypothesis_client_config(self, via_params):
+        """Create the config used in `window.hypothesisConfig`."""
+
+        config = {"showHighlights": True, "appType": "via"}
+
+        if "via.request_config_from_frame" in via_params:
+            # Create an object that holds the origin and ancestorLevel
+
+            frame_config = config["requestConfigFromFrame"] = {
+                "origin": via_params["via.request_config_from_frame"]
+            }
+
+            if "via.config_frame_ancestor_level" in via_params:
+                try:
+                    frame_config["ancestorLevel"] = int(
+                        via_params["via.config_frame_ancestor_level"]
+                    )
+                except ValueError:
+                    # Ignore any values that can't be cast to an int
+                    pass
+
+        if "via.open_sidebar" in via_params:
+            config["openSidebar"] = True
+
+        return config
