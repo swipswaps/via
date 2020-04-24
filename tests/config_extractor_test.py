@@ -96,51 +96,18 @@ class TestConfigExtractor(object):
             "/example.com?q=foobar&"
             "via.open_sidebar=1&"
             "via.request_config_from_frame=https://lms.hypothes.is&"
-            "via.config_frame_ancestor_level=2"
+            "via.config_frame_ancestor_level=3"
         )
 
         template_params = json.loads(resp.data).get("pywb.template_params")
         assert template_params == {
             "hypothesis_config": {
                 "appType": "via",
-                "openSidebar": True,
+                "openSidebar": "1",
                 "requestConfigFromFrame": {
                     "origin": "https://lms.hypothes.is",
-                    "ancestorLevel": 2,
+                    "ancestorLevel": "3",
                 },
-                "showHighlights": True,
-            }
-        }
-
-    def test_it_does_not_break_when_ancestor_level_is_not_int(self, client_get):
-        resp = client_get(
-            "/example.com?q=foobar&"
-            "via.open_sidebar=1&"
-            "via.request_config_from_frame=https://lms.hypothes.is&"
-            "via.config_frame_ancestor_level=not_an_int"
-        )
-        template_params = json.loads(resp.data).get("pywb.template_params")
-        assert template_params == {
-            "hypothesis_config": {
-                "appType": "via",
-                "openSidebar": True,
-                "requestConfigFromFrame": {"origin": "https://lms.hypothes.is"},
-                "showHighlights": True,
-            }
-        }
-
-    def test_it_does_not_break_when_ancestor_level_is_missing(self, client_get):
-        resp = client_get(
-            "/example.com?q=foobar&"
-            "via.open_sidebar=1&"
-            "via.request_config_from_frame=https://lms.hypothes.is"
-        )
-        template_params = json.loads(resp.data).get("pywb.template_params")
-        assert template_params == {
-            "hypothesis_config": {
-                "appType": "via",
-                "openSidebar": True,
-                "requestConfigFromFrame": {"origin": "https://lms.hypothes.is"},
                 "showHighlights": True,
             }
         }

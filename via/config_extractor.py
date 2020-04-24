@@ -2,7 +2,9 @@ from __future__ import unicode_literals
 
 import logging
 from urllib import urlencode
-from urlparse import parse_qsl, urlparse, urlunparse
+from urlparse import parse_qs, parse_qsl, urlparse, urlunparse
+
+from via.configuration import Configuration
 
 
 def rewrite_location_header(name, value, params):
@@ -94,12 +96,12 @@ class ConfigExtractor(object):
         self._application = application
 
     def __call__(self, environ, start_response):
+        client_params = self._make_hypothesis_client_config(environ)
+
         via_params = pop_query_params_with_prefix(environ, "via.")
 
         template_params = environ.get("pywb.template_params", {})
-        template_params["hypothesis_config"] = self._make_hypothesis_client_config(
-            via_params
-        )
+        template_params["hypothesis_config"] = client_params
 
         if "via.features" in via_params:
             template_params["via_features"] = via_params["via.features"].split(",")
@@ -124,28 +126,11 @@ class ConfigExtractor(object):
 
         return self._application(environ, start_response_wrapper)
 
-    def _make_hypothesis_client_config(self, via_params):
-        """Create the config used in `window.hypothesisConfig`."""
+    def _make_hypothesis_client_config(self, environ):
+        # Convert from keys being lists to being dict values. We don't expect
+        # duplicates for our values, so it's ok to overwrite
+        params = dict(parse_qsl(environ["QUERY_STRING"], keep_blank_values=True))
 
-        config = {"showHighlights": True, "appType": "via"}
+        _, client_params = Configuration.extract_from_params(params)
 
-        if "via.request_config_from_frame" in via_params:
-            # Create an object that holds the origin and ancestorLevel
-
-            frame_config = config["requestConfigFromFrame"] = {
-                "origin": via_params["via.request_config_from_frame"]
-            }
-
-            if "via.config_frame_ancestor_level" in via_params:
-                try:
-                    frame_config["ancestorLevel"] = int(
-                        via_params["via.config_frame_ancestor_level"]
-                    )
-                except ValueError:
-                    # Ignore any values that can't be cast to an int
-                    pass
-
-        if "via.open_sidebar" in via_params:
-            config["openSidebar"] = True
-
-        return config
+        return client_params
