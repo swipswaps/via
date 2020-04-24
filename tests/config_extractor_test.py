@@ -94,9 +94,9 @@ class TestConfigExtractor(object):
     def test_it_sets_template_params_from_matching_query_params(self, client_get):
         resp = client_get(
             "/example.com?q=foobar&"
-            "via.open_sidebar=1&"
-            "via.request_config_from_frame=https://lms.hypothes.is&"
-            "via.config_frame_ancestor_level=3"
+            "via.client.openSidebar=1&"
+            "via.client.requestConfigFromFrame.origin=https://lms.hypothes.is&"
+            "via.client.requestConfigFromFrame.ancestorLevel=3"
         )
 
         template_params = json.loads(resp.data).get("pywb.template_params")
@@ -119,7 +119,7 @@ class TestConfigExtractor(object):
         assert template_params["via_features"] == ["feature_a", "feature_b"]
 
     def test_it_passes_non_matching_query_params_to_upstream_app(self, client_get):
-        resp = client_get("/example.com?q=foobar&via.open_sidebar=1")
+        resp = client_get("/example.com?q=foobar&via.client.openSidebar=1")
 
         upstream_environ = json.loads(resp.data)
         assert upstream_environ["QUERY_STRING"] == "q=foobar"
@@ -139,14 +139,14 @@ class TestConfigExtractor(object):
             start_response(upstream_status, [("Location", upstream_location)])
             return []
 
-        request_url = "/example.com/old-path?q=foobar&via.open_sidebar=1"
+        request_url = "/example.com/old-path?q=foobar&via.client.openSidebar=1"
 
         resp = client_get(request_url, ConfigExtractor(upstream_app))
 
         assert resp.status == upstream_status
         assert (
             resp.headers.get("Location")
-            == "https://example.com/moved?via.open_sidebar=1"
+            == "https://example.com/moved?via.client.openSidebar=1"
         )
 
     @pytest.mark.parametrize(
@@ -173,7 +173,7 @@ class TestConfigExtractor(object):
             start_response(upstream_status, upstream_headers)
             return upstream_body
 
-        request_url = "/example.com/a_path?q=foobar&via.open_sidebar=1"
+        request_url = "/example.com/a_path?q=foobar&via.client.openSidebar=1"
 
         resp = client_get(request_url, ConfigExtractor(upstream_app))
 
